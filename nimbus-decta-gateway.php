@@ -41,8 +41,37 @@ function init_nimbus_gateway_class() {
         $this->init_settings();
         $this->title = 'Card Payment';
         $this->description = 'Pay using credit/debit card';
+        $this->public_key = $this->get_option('public_key');
+        $this->private_key = $this->get_option('private_key');
 
         add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+
+        add_action( 'wp_enqueue_scripts', array( $this, 'payment_scripts'  ) );
+
+    }
+
+    public function init_form_fields() {
+        $this->form_fields = array(
+          'enabled' => array(
+            'title' => 'Enable/Disable',
+            'label' => 'Enable Nimbus Gateway',
+            'type' => 'Checkbox',
+            'description' => '',
+            'default' => 'no'
+          ),
+          'public_key' => array(
+            'title' => 'Public Key',
+            'type' => 'text',
+            'description' => 'Please enter your public key',
+            'default' => ''
+          ),
+          'private_key' => array(
+            'title' => 'Private key',
+            'type' => 'password',
+            'description' => 'Please enter your private key',
+            'default' => ''
+          )
+        );
     }
 
     public function payment_fields() {
@@ -73,28 +102,8 @@ function init_nimbus_gateway_class() {
     }
 
 
-    public function init_form_fields() {
-        $this->form_fields = array(
-          'enabled' => array(
-            'title' => 'Enable/Disable',
-            'label' => 'Enable Nimbus Gateway',
-            'type' => 'Checkbox',
-            'description' => '',
-            'default' => 'no'
-          ),
-          'public-key' => array(
-            'title' => 'Public Key',
-            'type' => 'text',
-            'description' => 'Please enter your public key',
-            'default' => ''
-          ),
-          'private-key' => array(
-            'title' => 'Private key',
-            'type' => 'text',
-            'description' => 'Please enter your private key',
-            'default' => ''
-          )
-        );
+    public function payment_scripts() {
+
     }
 
     // https://rudrastyh.com/woocommerce/payment-gateway-plugin.html
