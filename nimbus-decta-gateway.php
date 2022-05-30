@@ -22,10 +22,25 @@ function init_nimbus_gateway() {
     // https://woocommerce.github.io/code-reference/classes/WC-Payment-Gateway.html
     class WC_Nimbus_Gateway extends WC_Payment_Gateway {
 
-    
+    public function __construct() {
+        $this->id = 'nimbusgatway';
+        $this->method_title = 'Card Payment';
+        
+        $this->init_form_fields();
+        $this->init_settings();
+    }
+
+    public function init_form_fields() {
 
     }
 
+    public function init_settings() {
+        
+    }
+
+    }
+
+    //Tell WooCommerce we exist
     function add_gateway( $methods ) {
         $methods[] = 'WC_Nimbus_Gateway';
         return $methods;
