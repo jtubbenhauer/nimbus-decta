@@ -97,13 +97,6 @@ function init_nimbus_gateway_class() {
         );
     }
 
-    // https://rudrastyh.com/woocommerce/payment-gateway-plugin.html
-//     Customer fills his card data and clicks “Place Order” button.
-// We delay the form submission using checkout_place_order event in WooCommerce and send AJAX request with card data directly to our payment processor,
-// If customer details are OK, the processor returns a token and we add it to our form below,
-// Now we can submit the form (in JS of course),
-// We use the token in PHP to capture a payment via payment processor’s API.
-
     public function process_payment( $order_id ) {
 
       global $woocommerce;
