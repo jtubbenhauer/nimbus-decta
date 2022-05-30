@@ -18,9 +18,21 @@ require_once 'logger.php';
 add_action('plugins_loaded', 'init_nimbus_gateway');
 
 function init_nimbus_gateway() {
+
     // https://woocommerce.github.io/code-reference/classes/WC-Payment-Gateway.html
     class WC_Nimbus_Gateway extends WC_Payment_Gateway {
 
+    
+
     }
+
+    function add_gateway( $methods ) {
+        $methods[] = 'WC_Nimbus_Gateway';
+        return $methods;
+    }
+
+    add_filter('woocommerce_payment_gateways', 'add_gateway');
+
+
 }
 
