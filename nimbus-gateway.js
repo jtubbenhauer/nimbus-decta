@@ -13,7 +13,7 @@ const tokenRequest = function (data) {
   const secretKey = nimbus_params.secretKey;
   const email = document.getElementById("billing_email").value;
   const price = document
-    .getElementsByClassName("woocommerce-Price-amount")[0]
+    .getElementsByClassName("order-total")[0]
     .getElementsByTagName("bdi")[0]
     .textContent.substring(1);
 
