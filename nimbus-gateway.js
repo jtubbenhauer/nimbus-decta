@@ -1,9 +1,9 @@
-const successCallback = function (data) {
+const successCallback = function (id, direct_post) {
   const checkout_form = $("form.woocommerce-checkout");
-
+  console.log(id, direct_data);
   checkout_form.off("checkout_place_order", tokenRequest);
 
-  checkout_form.submit();
+  // checkout_form.submit();
 };
 
 const errorCallback = function (data) {
@@ -12,7 +12,6 @@ const errorCallback = function (data) {
 
 const tokenRequest = function (data) {
   const secretKey = nimbus_params.secretKey;
-  console.log("yep");
   const email = document.getElementById("billing_email").value;
   const price = document
     .getElementsByClassName("woocommerce-Price-amount")[0]
@@ -46,7 +45,7 @@ const tokenRequest = function (data) {
 
   fetch("https://gate.novattipayments.com/api/v0.6/orders/", requestOptions)
     .then((res) => res.json())
-    .then((data) => console.log(data.id, data.direct_post))
+    .then((data) => successCallback(data.id, data.direct_post))
     .catch((error) => console.log("error", error));
 };
 

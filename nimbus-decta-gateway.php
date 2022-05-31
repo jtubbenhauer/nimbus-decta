@@ -129,27 +129,6 @@ function init_nimbus_gateway_class()
       </fieldset>
 
       <?php do_action("woocommerce_credit_card_form_end", $this->id);
-
-      // echo '<fieldset id="wc-' . esc_attr($this->id) . 'cc-form" class="wc-credit-card-form wc-payment-form" style="background:transparent;">';
-      // echo '
-      // <div class="form-row form-row-wide">
-      // <label>Name On Card <span class="required">*</span></label>
-      // <input id="nimbus_name" name="cardholder_name" type="text" autocomplete="off">
-      // </div>
-      // <div class="form-row form-row-wide"><label>Card Number <span class="required">*</span></label>
-      // <input id="nimbus_ccNum" type="text" autocomplete="off">
-      // </div>
-      // <div class="form-row form-row-first">
-      //   <label>Expiry Date <span class="required">*</span></label>
-      //   <input id="nimbus_expdate" type="text" autocomplete="off" placeholder="MM/YY">
-      // </div>
-      // <div class="form-row form-row-last">
-      //   <label>Card Code (CVV) <span class="required">*</span></label>
-      //   <input id="nimbus_cvv" type="text" autocomplete="off" placeholder="CVV">
-      // </div>
-      // <div class="clear"></div>'; -->
-
-      // echo '<div class="clear"></div></fieldset>'; -->
     }
 
     public function payment_scripts()
