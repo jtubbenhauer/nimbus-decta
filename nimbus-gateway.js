@@ -1,8 +1,6 @@
 const successCallback = function (data) {
   const checkout_form = $("form.woocommerce-checkout");
 
-  console.log(data);
-
   checkout_form.off("checkout_place_order", tokenRequest);
 
   checkout_form.submit();
@@ -13,15 +11,13 @@ const errorCallback = function (data) {
 };
 
 const tokenRequest = function (data) {
-  console.log(data);
   const secretKey = nimbus_params.secretKey;
   const email = document.getElementById("billing_email").value;
   const price = document
     .getElementsByClassName("woocommerce-Price-amount")[0]
     .getElementsByTagName("bdi")[0]
     .textContent.substring(1);
-  //   console.log(price.getElementsByTagName("bdi")[0].textContent.substring(1));
-  console.log(price);
+
   var myHeaders = new Headers();
   myHeaders.append("Authorization", "Bearer " + secretKey);
   myHeaders.append("Content-Type", "application/json");
