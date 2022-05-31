@@ -87,6 +87,7 @@ function init_nimbus_gateway_class()
     public function payment_fields()
     {
       do_action("woocommerce_credit_card_form_start", $this->id);
+
       if ($this->description) {
         echo wpautop(wp_kses_post($this->description));
       }
@@ -123,6 +124,8 @@ function init_nimbus_gateway_class()
           <label for="nimbus_cvc">CVV <span class="required">*</span></label>
           <input type="text" id="nimbus_cvc" name="csc" maxlength="3">
         </div>
+        <div class="clear"></div>
+        <div class="clear"></div>
       </fieldset>
 
       <?php do_action("woocommerce_credit_card_form_end", $this->id);
@@ -177,10 +180,10 @@ function init_nimbus_gateway_class()
       wp_enqueue_script("woocommerce_nimbus");
     }
 
-    public function validate_fields()
-    {
-      // https://github.com/adrianjonmiller/vadsupplies/blob/master/plugins/woocommerce-gateway-elavon/includes/class-wc-gateway-elavon-vm.php
-    }
+    // public function validate_fields()
+    // {
+    //   // https://github.com/adrianjonmiller/vadsupplies/blob/master/plugins/woocommerce-gateway-elavon/includes/class-wc-gateway-elavon-vm.php
+    // }
 
     // https://rudrastyh.com/woocommerce/payment-gateway-plugin.html
     //     Customer fills his card data and clicks “Place Order” button.

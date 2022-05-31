@@ -12,6 +12,7 @@ const errorCallback = function (data) {
 
 const tokenRequest = function (data) {
   const secretKey = nimbus_params.secretKey;
+  console.log("yep");
   const email = document.getElementById("billing_email").value;
   const price = document
     .getElementsByClassName("woocommerce-Price-amount")[0]
@@ -28,7 +29,7 @@ const tokenRequest = function (data) {
     },
     products: [
       {
-        title: "products",
+        title: "product",
         price: price,
       },
     ],
