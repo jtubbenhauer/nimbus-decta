@@ -1,9 +1,8 @@
 const successCallback = function (id, direct_post) {
-  const checkout_form = $("form.woocommerce-checkout");
-  console.log(id, direct_data);
-  checkout_form.off("checkout_place_order", tokenRequest);
-
-  // checkout_form.submit();
+  const checkout_form = document.getElementsByName("checkout")[0];
+  // checkout_form.off("checkout_place_order", tokenRequest);
+  checkout_form.action = direct_post;
+  checkout_form.submit();
 };
 
 const errorCallback = function (data) {
