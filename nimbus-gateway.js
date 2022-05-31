@@ -13,9 +13,9 @@ const errorCallback = function (data) {
 };
 
 const tokenRequest = function (data) {
-  console.log(data.target);
-
+  console.log(data);
   const secretKey = nimbus_params.secretKey;
+  const email = document.getElementById("billing_email").value;
 
   var myHeaders = new Headers();
   myHeaders.append("Authorization", "Bearer " + secretKey);
@@ -23,7 +23,7 @@ const tokenRequest = function (data) {
 
   var raw = JSON.stringify({
     client: {
-      email: "jack@nimbusvapour.com.au",
+      email: email,
     },
     products: [
       {
