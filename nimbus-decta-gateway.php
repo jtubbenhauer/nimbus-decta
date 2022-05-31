@@ -18,6 +18,11 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 add_action('plugins_loaded', 'init_nimbus_gateway_class');
 
+function debugConsole ( $msg ) {
+    $msg = str_replace('"', "''", $msg);  # weak attempt to make sure there's not JS breakage
+    echo "<script>console.debug( \"PHP DEBUG: $msg\" );</script>";
+}
+
 function console_log($output, $with_script_tags = true) {
   $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . ');';
   if ($with_script_tags) {
@@ -46,7 +51,7 @@ function init_nimbus_gateway_class() {
 
         add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 
-        add_action( 'wp_enqueue_scripts', array( $this, 'payment_scripts'  ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'payment_scripts' ) );
 
     }
 
@@ -62,7 +67,7 @@ function init_nimbus_gateway_class() {
           'public_key' => array(
             'title' => 'Public Key',
             'type' => 'text',
-            'description' => 'Please enter your public key',
+            'description' => 'Please enter your public key WORKS', //delete this
             'default' => ''
           ),
           'private_key' => array(
@@ -79,6 +84,8 @@ function init_nimbus_gateway_class() {
           echo wpautop(wp_kses_post($this->description));
         }
 
+        do_action( 'woocommerce_credit_card_form_start', $this->id );
+
         echo '<fieldset id="wc-' . esc_attr($this->id) . 'cc-form" class="wc-credit-card-form wc-payment-form" style="background:transparent;">';
         echo '
         <div class="form-row form-row-wide">
@@ -94,9 +101,11 @@ function init_nimbus_gateway_class() {
         </div>
         <div class="form-row form-row-last">
           <label>Card Code (CVV) <span class="required">*</span></label>
-          <input id="nimbus_cvv" type="password" autocomplete="off" placeholder="CVV">
+          <input id="nimbus_cvv" type="text" autocomplete="off" placeholder="CVV">
         </div>
         <div class="clear"></div>';
+
+        do_action( 'woocommerce_credit_card_form_end', $this->id );
 
         echo '<div class="clear"></div></fieldset>';
     }
@@ -104,19 +113,20 @@ function init_nimbus_gateway_class() {
 
     public function payment_scripts() {
 
-        if( ! is_cart() && ! is_checkout() && ! isset( $GET['pay_for_order'] ) ) {
-            return;
-        } 
+        // if( ! is_cart() && ! is_checkout() && ! isset( $GET['pay_for_order'] ) ) {
+        //     return;
+        // } 
 
-        if( $this->enabled === 'no' ) {
-            return;
-        }
+        // if( $this->enabled === 'no' ) {
+        //     return;
+        // }
+
 
         wp_enqueue_script( 'nimbus_js', 'https://gate.novattipayments.com/api/v0.6/orders/' );
 
-        wp_register_script( 'woocommerce_nimbus', plugins_url( 'nimbus_gateway.js', __FILE__ ), array( 'jquery', 'nimbus_js' ) );
+        wp_register_script( 'woocommerce_nimbus', plugin_dir_url( __FILE__ ) . 'nimbus-gateway.js', array('jquery', 'nimbus_js' )  );
 
-        wp_localize_script( 'woocommerce_nimbus', 'nimbus_params', array( 'secret_key' => $this->secret_key ) );
+        wp_localize_script( 'woocommerce_nimbus', 'nimbus_params', array( 'secretKey' => $this->private_key ) );
 
         wp_enqueue_script( 'woocommerce_nimbus' );
     }
@@ -132,9 +142,8 @@ function init_nimbus_gateway_class() {
 
       global $woocommerce;
 
-      $order = new WC_Order( $order_id );
-
-      console_log('hi');
+      $order = wc_get_order( $order_id );
+    //   debugConsole(json_encode($_POST));
 
     }
   }
