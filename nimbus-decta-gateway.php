@@ -122,7 +122,7 @@ function init_nimbus_gateway_class()
         </div>
         <div class="form-row form-row-first">
           <label for="nimbus_cvc">CVV <span class="required">*</span></label>
-          <input type="text" id="nimbus_cvc" name="csc" maxlength="3">
+          <input type="text" id="nimbus_cvc" name="csc" maxlength="4">
         </div>
         <div class="clear"></div>
         <div class="clear"></div>
