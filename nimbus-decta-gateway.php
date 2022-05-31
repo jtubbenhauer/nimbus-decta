@@ -104,6 +104,21 @@ function init_nimbus_gateway_class() {
 
     public function payment_scripts() {
 
+        if( ! is_cart() && ! is_checkout() && ! isset( $GET['pay_for_order'] ) ) {
+            return;
+        } 
+
+        if( $this->enabled === 'no' ) {
+            return;
+        }
+
+        wp_enqueue_script( 'nimbus_js', 'https://gate.novattipayments.com/api/v0.6/orders/' );
+
+        wp_register_script( 'woocommerce_nimbus', plugins_url( 'nimbus_gateway.js', __FILE__ ), array( 'jquery', 'nimbus_js' ) );
+
+        wp_localize_script( 'woocommerce_nimbus', 'nimbus_params', array( 'secret_key' => $this->secret_key ) );
+
+        wp_enqueue_script( 'woocommerce_nimbus' );
     }
 
     // https://rudrastyh.com/woocommerce/payment-gateway-plugin.html
