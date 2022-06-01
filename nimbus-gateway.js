@@ -31,8 +31,10 @@ const tokenRequest = function (data) {
         price: price,
       },
     ],
-    success_redirect: "http://staging.nimbusvapour.com.au",
-    failure_redirect: "http://staging.nimbusvapour.com.au",
+    success_redirect:
+      "http://staging.nimbusvapour.com.au/checkout/order-received/",
+    failure_redirect:
+      "http://staging.nimbusvapour.com.au/checkout/order-received/",
   });
 
   var requestOptions = {
@@ -44,7 +46,10 @@ const tokenRequest = function (data) {
 
   fetch("https://gate.novattipayments.com/api/v0.6/orders/", requestOptions)
     .then((res) => res.json())
-    .then((data) => successCallback(data.id, data.direct_post))
+    .then((data) => {
+      // console.log(data);
+      successCallback(data.id, data.direct_post);
+    })
     .catch((error) => console.log("error", error));
 };
 

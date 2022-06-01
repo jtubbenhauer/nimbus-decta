@@ -177,6 +177,11 @@ function init_nimbus_gateway_class()
 
       $order = wc_get_order($order_id);
       //   debugConsole(json_encode($_POST));
+
+
+      $order->payment_complete();
+      $order->reduce_order_stock();
+      $order->add_order_note(__('Payment successful', 'woocommerce'));
     }
   }
 
