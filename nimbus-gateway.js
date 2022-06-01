@@ -1,10 +1,11 @@
 const successCallback = function (id, direct_post) {
   const checkout_form = document.getElementsByName("checkout")[0];
+  const new_form = checkout_form;
+  new_form.action = direct_post;
   // checkout_form.off("checkout_place_order", tokenRequest);
-  checkout_form.action = direct_post;
-  window.onbeforeunload = () => {
-    checkout_form.submit();
-  };
+
+  new_form.submit();
+  // checkout_form.submit();
 };
 
 const errorCallback = function (data) {
@@ -57,5 +58,8 @@ const tokenRequest = function (data) {
 
 jQuery(function ($) {
   var checkout_form = $("form.woocommerce-checkout");
+  checkout_form.on("submit", function (e) {
+    window.onbeforeunload = null;
+  });
   checkout_form.on("checkout_place_order", tokenRequest);
 });
