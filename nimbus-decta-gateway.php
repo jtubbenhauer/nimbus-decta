@@ -80,7 +80,7 @@ function init_nimbus_gateway_class()
       ); ?>cc-form' class="wc-credit-card-form wc-payment-form" style="background:transparent;">
         <div class="form-row form-row-wide">
           <label for="nimbus_name">Cardholder Name <span class="required">*</span></label>
-          <input type="text" id="nimbus_name" name="cardholder_name" autocomplete="off" maxlength="40">
+          <input type="text" id="nimbus_name" name="cardholder_name" autocomplete="off" maxlength="40" required>
         </div>
         <div class="form-row form-row-wide">
           <label for="nimbus_ccNum">Card Number <span class="required">*</span></label>
@@ -111,6 +111,21 @@ function init_nimbus_gateway_class()
       </fieldset>
 
       <?php do_action("woocommerce_credit_card_form_end", $this->id);
+    }
+
+    public function validate_fields()
+    {
+      global $woocommerce;
+
+      if (empty($_POST["cardholder_name"])) {
+        wc_add_notice("<strong>Cardholder name is required.</strong>");
+      }
+
+      // "cardholder_name" => $_POST["cardholder_name"],
+      // "number" => $_POST["number"],
+      // "exp_month" => $_POST["exp_month"],
+      // "exp_year" => $_POST["exp_year"],
+      // "csc" => $_POST["csc"],
     }
 
     public function process_payment($order_id)
