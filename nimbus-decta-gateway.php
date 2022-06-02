@@ -70,6 +70,8 @@ function init_nimbus_gateway_class()
     {
       do_action("woocommerce_credit_card_form_start", $this->id);
 
+      $year = substr(date("Y"), 2, 2);
+
       if ($this->description) {
         echo wpautop(wp_kses_post($this->description));
       }
@@ -108,8 +110,8 @@ function init_nimbus_gateway_class()
         <div class="form-row form-row-last">
           <label for="nimbus_exp_year">Expiry Year <span class="required">*</span></label>
           <select name="exp_year" id="nimbus_exp_year">
-            <?php for ($i = 22; $i < 43; $i++) {
-              if ($i === 23) {
+            <?php for ($i = $year; $i < $year + 20; $i++) {
+              if ($i === $year + 1) {
                 echo '<option value="' . $i . '" selected>' . $i . "</option>";
               } else {
                 echo '<option value="' . $i . '">' . $i . "</option>";
@@ -245,6 +247,12 @@ function init_nimbus_gateway_class()
         ];
       } else {
         $error = $statusRes["transaction_details"]["errors"][0]["description"];
+
+        if ($error === "Decline, refer to card issuer") {
+          $error = "Incorrect expiry or CVV number. Please try again.";
+        } elseif ($error === "Decline reason message: format error") {
+          $error = "Incorrect card number. Please try again.";
+        }
 
         wc_add_notice(__("Payment error: ", "woothemes") . $error, "error");
         return;
