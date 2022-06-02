@@ -177,8 +177,6 @@ function init_nimbus_gateway_class()
             "title" => "Order",
           ],
         ],
-        "success_redirect" => "http://staging.nimbusvapour.com.au",
-        "failure_redirect" => "http://staging.nimbusvapour.com.au",
       ];
 
       $createOrderAuth = "Bearer " . $this->private_key;
@@ -225,11 +223,11 @@ function init_nimbus_gateway_class()
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_POSTFIELDS => [
-          "cardholder_name" => "J T",
-          "number" => "4111111111111111",
-          "exp_month" => "01",
-          "exp_year" => "25",
-          "csc" => "011",
+          "cardholder_name" => $_POST["cardholder_name"],
+          "number" => $_POST["number"],
+          "exp_month" => $_POST["exp_month"],
+          "exp_year" => $_POST["exp_year"],
+          "csc" => $_POST["csc"],
         ],
       ]);
 
@@ -268,12 +266,9 @@ function init_nimbus_gateway_class()
           "redirect" => $this->get_return_url($order),
         ];
       } else {
-        // $error = $statusRes["transaction-details"]["errors"]
+        $error = $statusRes["transaction_details"]["errors"][0]["description"];
 
-        debugConsole(
-          $statusRes["transaction_details"]["errors"][0]["description"]
-        );
-        wc_add_notice(__("Payment error", "woothemes"));
+        wc_add_notice(__("Payment error: ", "woothemes") . $error, "error");
         return;
       }
     }
