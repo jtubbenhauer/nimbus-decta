@@ -13,24 +13,12 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 //https://woocommerce.com/document/payment-gateway-api/
 //https://api-docs.novattipayments.com/#section/Checkouts - Direct form API stuff
 
-// require_once 'novatiipayments-api.php';
-// require_once 'logger.php';
-
 add_action("plugins_loaded", "init_nimbus_gateway_class");
 
 function debugConsole($msg)
 {
   $msg = str_replace('"', "''", $msg); # weak attempt to make sure there's not JS breakage
   echo "<script>console.debug( \"PHP DEBUG: $msg\" );</script>";
-}
-
-function console_log($output, $with_script_tags = true)
-{
-  $js_code = "console.log(" . json_encode($output, JSON_HEX_TAG) . ");";
-  if ($with_script_tags) {
-    $js_code = "<script>" . $js_code . "</script>";
-  }
-  echo $js_code;
 }
 
 function init_nimbus_gateway_class()
@@ -56,7 +44,7 @@ function init_nimbus_gateway_class()
         "process_admin_options",
       ]);
 
-      add_action("wp_enqueue_scripts", [$this, "payment_scripts"]);
+      // add_action("wp_enqueue_scripts", [$this, "payment_scripts"]);
     }
 
     public function init_form_fields()
@@ -131,33 +119,33 @@ function init_nimbus_gateway_class()
       <?php do_action("woocommerce_credit_card_form_end", $this->id);
     }
 
-    public function payment_scripts()
-    {
-      // if( ! is_cart() && ! is_checkout() && ! isset( $GET['pay_for_order'] ) ) {
-      //     return;
-      // }
+    // public function payment_scripts()
+    // {
+    //   // if( ! is_cart() && ! is_checkout() && ! isset( $GET['pay_for_order'] ) ) {
+    //   //     return;
+    //   // }
 
-      // if( $this->enabled === 'no' ) {
-      //     return;
-      // }
+    //   // if( $this->enabled === 'no' ) {
+    //   //     return;
+    //   // }
 
-      wp_enqueue_script(
-        "nimbus_js",
-        "https://gate.novattipayments.com/api/v0.6/orders/"
-      );
+    //   wp_enqueue_script(
+    //     "nimbus_js",
+    //     "https://gate.novattipayments.com/api/v0.6/orders/"
+    //   );
 
-      wp_register_script(
-        "woocommerce_nimbus",
-        plugin_dir_url(__FILE__) . "nimbus-gateway.js",
-        ["jquery", "nimbus_js"]
-      );
+    //   wp_register_script(
+    //     "woocommerce_nimbus",
+    //     plugin_dir_url(__FILE__) . "nimbus-gateway.js",
+    //     ["jquery", "nimbus_js"]
+    //   );
 
-      wp_localize_script("woocommerce_nimbus", "nimbus_params", [
-        "secretKey" => $this->private_key,
-      ]);
+    //   wp_localize_script("woocommerce_nimbus", "nimbus_params", [
+    //     "secretKey" => $this->private_key,
+    //   ]);
 
-      wp_enqueue_script("woocommerce_nimbus");
-    }
+    //   wp_enqueue_script("woocommerce_nimbus");
+    // }
 
     // public function validate_fields()
     // {
@@ -176,12 +164,48 @@ function init_nimbus_gateway_class()
       global $woocommerce;
 
       $order = wc_get_order($order_id);
-      //   debugConsole(json_encode($_POST));
 
+      debugConsole($order->get_billing_email());
 
-      $order->payment_complete();
-      $order->reduce_order_stock();
-      $order->add_order_note(__('Payment successful', 'woocommerce'));
+      // $curl = curl_init();
+
+      // curl_setopt_array($curl, [
+      //   CURLOPT_URL => "https://gate.novattipayments.com/api/v0.6/orders/",
+      //   CURLOPT_RETURNTRANSFER => true,
+      //   CURLOPT_ENCODING => "",
+      //   CURLOPT_MAXREDIRS => 10,
+      //   CURLOPT_TIMEOUT => 0,
+      //   CURLOPT_FOLLOWLOCATION => true,
+      //   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      //   CURLOPT_CUSTOMREQUEST => "POST",
+      //   CURLOPT_POSTFIELDS => '{
+      //     "client": {
+      //         "email": "jack@nimbusvapour.com.au"
+      //     },
+      //     "products": [
+      //         {
+      //             "price": 10,
+      //             "title": "products"
+      //         }
+      //     ]
+      // }',
+      //   CURLOPT_HTTPHEADER => [
+      //     "Authorization: Bearer f540d110bef2cba23bb83ac40259c9e9a7d7f8b93bc5f04fdf1a36b855c1480c",
+      //     "Content-Type: application/json",
+      //   ],
+      // ]);
+
+      // $response = curl_exec($curl);
+
+      // curl_close($curl);
+
+      // $jsRes = json_decode($response, true);
+
+      // debugConsole($jsRes["direct_post"]);
+
+      // $order->payment_complete();
+      // $order->reduce_order_stock();
+      // $order->add_order_note(__('Payment successful', 'woocommerce'));
     }
   }
 
