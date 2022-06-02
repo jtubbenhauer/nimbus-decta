@@ -177,6 +177,8 @@ function init_nimbus_gateway_class()
             "title" => "Order",
           ],
         ],
+        "success_redirect" => "http://staging.nimbusvapour.com.au",
+        "failure_redirect" => "http://staging.nimbusvapour.com.au",
       ];
 
       $createOrderAuth = "Bearer " . $this->private_key;
@@ -226,6 +228,26 @@ function init_nimbus_gateway_class()
           "exp_year" => "25",
           "csc" => "010",
         ],
+      ]);
+
+      $response = curl_exec($curl);
+
+      curl_close($curl);
+
+      // Check if paid
+
+      $curl = curl_init();
+
+      curl_setopt_array($curl, [
+        CURLOPT_URL => "https://gate.novattipayments.com/api/v0.6/orders/111b9282-754c-4d69-b9a1-cbbfed043f23/",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "GET",
+        CURLOPT_HTTPHEADER => ["Authorization: Bearer " . $this->private_key],
       ]);
 
       $response = curl_exec($curl);
