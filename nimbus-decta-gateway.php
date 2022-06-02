@@ -192,11 +192,11 @@ function init_nimbus_gateway_class()
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_POSTFIELDS => [
-          "cardholder_name" => $_POST["cardholder_name"],
-          "number" => $_POST["number"],
+          "cardholder_name" => strtoupper($_POST["cardholder_name"]),
+          "number" => str_replace(" ", "", $_POST["number"]),
           "exp_month" => $_POST["exp_month"],
           "exp_year" => $_POST["exp_year"],
-          "csc" => $_POST["csc"],
+          "csc" => str_replace(" ", "", $_POST["csc"]),
         ],
       ]);
 
