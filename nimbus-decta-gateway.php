@@ -10,9 +10,6 @@ License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 */
 
-//https://woocommerce.com/document/payment-gateway-api/
-//https://api-docs.novattipayments.com/#section/Checkouts - Direct form API stuff
-
 add_action("plugins_loaded", "init_nimbus_gateway_class");
 
 function debugConsole($msg)
@@ -23,7 +20,6 @@ function debugConsole($msg)
 
 function init_nimbus_gateway_class()
 {
-  // https://woocommerce.github.io/code-reference/classes/WC-Payment-Gateway.html
   class WC_Nimbus_Gateway extends WC_Payment_Gateway
   {
     public function __construct()
@@ -43,8 +39,6 @@ function init_nimbus_gateway_class()
         $this,
         "process_admin_options",
       ]);
-
-      // add_action("wp_enqueue_scripts", [$this, "payment_scripts"]);
     }
 
     public function init_form_fields()
@@ -118,46 +112,6 @@ function init_nimbus_gateway_class()
 
       <?php do_action("woocommerce_credit_card_form_end", $this->id);
     }
-
-    // public function payment_scripts()
-    // {
-    //   // if( ! is_cart() && ! is_checkout() && ! isset( $GET['pay_for_order'] ) ) {
-    //   //     return;
-    //   // }
-
-    //   // if( $this->enabled === 'no' ) {
-    //   //     return;
-    //   // }
-
-    //   wp_enqueue_script(
-    //     "nimbus_js",
-    //     "https://gate.novattipayments.com/api/v0.6/orders/"
-    //   );
-
-    //   wp_register_script(
-    //     "woocommerce_nimbus",
-    //     plugin_dir_url(__FILE__) . "nimbus-gateway.js",
-    //     ["jquery", "nimbus_js"]
-    //   );
-
-    //   wp_localize_script("woocommerce_nimbus", "nimbus_params", [
-    //     "secretKey" => $this->private_key,
-    //   ]);
-
-    //   wp_enqueue_script("woocommerce_nimbus");
-    // }
-
-    // public function validate_fields()
-    // {
-    //   // https://github.com/adrianjonmiller/vadsupplies/blob/master/plugins/woocommerce-gateway-elavon/includes/class-wc-gateway-elavon-vm.php
-    // }
-
-    // https://rudrastyh.com/woocommerce/payment-gateway-plugin.html
-    //     Customer fills his card data and clicks “Place Order” button.
-    // We delay the form submission using checkout_place_order event in WooCommerce and send AJAX request with card data directly to our payment processor,
-    // If customer details are OK, the processor returns a token and we add it to our form below,
-    // Now we can submit the form (in JS of course),
-    // We use the token in PHP to capture a payment via payment processor’s API.
 
     public function process_payment($order_id)
     {
