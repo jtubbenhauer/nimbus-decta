@@ -207,6 +207,9 @@ function init_nimbus_gateway_class()
 
       $createOrderRes = json_decode($response, true);
       $direct_post = $createOrderRes["direct_post"];
+      $novatti_id = $createOrderRes["id"];
+
+      debugConsole($novatti_id);
 
       // Create form and pay
 
@@ -226,7 +229,7 @@ function init_nimbus_gateway_class()
           "number" => "4111111111111111",
           "exp_month" => "01",
           "exp_year" => "25",
-          "csc" => "010",
+          "csc" => "011",
         ],
       ]);
 
@@ -239,7 +242,8 @@ function init_nimbus_gateway_class()
       $curl = curl_init();
 
       curl_setopt_array($curl, [
-        CURLOPT_URL => "https://gate.novattipayments.com/api/v0.6/orders/111b9282-754c-4d69-b9a1-cbbfed043f23/",
+        CURLOPT_URL =>
+          "https://gate.novattipayments.com/api/v0.6/orders/" . $novatti_id,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
@@ -254,9 +258,24 @@ function init_nimbus_gateway_class()
 
       curl_close($curl);
 
-      // $order->payment_complete();
-      // $order->reduce_order_stock();
-      // $order->add_order_note(__('Payment successful', 'woocommerce'));
+      $statusRes = json_decode($response, true);
+
+      if ($statusRes["status"] === "paid") {
+        $order->payment_complete();
+
+        return [
+          "result" => "success",
+          "redirect" => $this->get_return_url($order),
+        ];
+      } else {
+        // $error = $statusRes["transaction-details"]["errors"]
+
+        debugConsole(
+          $statusRes["transaction_details"]["errors"][0]["description"]
+        );
+        wc_add_notice(__("Payment error", "woothemes"));
+        return;
+      }
     }
   }
 
