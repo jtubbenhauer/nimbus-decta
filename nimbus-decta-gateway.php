@@ -41,6 +41,12 @@ function init_nimbus_gateway_class()
       ]);
     }
 
+    public function log($message)
+    {
+      $logger = new WC_Logger();
+      $logger->add("Nimbus Gateway: ", $message);
+    }
+
     public function init_form_fields()
     {
       $this->form_fields = [
@@ -136,14 +142,17 @@ function init_nimbus_gateway_class()
 
       if (empty($_POST["cardholder_name"])) {
         wc_add_notice("<strong>Cardholder name is required.</strong>", "error");
+        $this->log("Validation Error: Empty cardholder name");
       }
 
       if (empty($_POST["number"])) {
         wc_add_notice("<strong>Card number is required.</strong>", "error");
+        $this->log("Validation Error: Empty card number");
       }
 
       if (empty($_POST["csc"])) {
         wc_add_notice("<strong>CVV is required.</strong>", "error");
+        $this->log("Validation Error: Empty CVV");
       }
     }
 
