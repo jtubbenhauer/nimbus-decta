@@ -135,14 +135,16 @@ function init_nimbus_gateway_class()
       global $woocommerce;
 
       if (empty($_POST["cardholder_name"])) {
-        wc_add_notice("<strong>Cardholder name is required.</strong>");
+        wc_add_notice("<strong>Cardholder name is required.</strong>", "error");
       }
 
-      // "cardholder_name" => $_POST["cardholder_name"],
-      // "number" => $_POST["number"],
-      // "exp_month" => $_POST["exp_month"],
-      // "exp_year" => $_POST["exp_year"],
-      // "csc" => $_POST["csc"],
+      if (empty($_POST["number"])) {
+        wc_add_notice("<strong>Card number is required.</strong>", "error");
+      }
+
+      if (empty($_POST["csc"])) {
+        wc_add_notice("<strong>CVV is required.</strong>", "error");
+      }
     }
 
     public function process_payment($order_id)
