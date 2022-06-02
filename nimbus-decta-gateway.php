@@ -2,7 +2,7 @@
 /*
 PLugin Name: NimbusDectaGateway
 Description: NimbusDecta WooCommerce Payment Gateway
-Version: 0.1
+Version: 1.0
 Author: Jack Tubbenhauer
 AUthor URI:
 Copyright: 2022 Jack Tubbenhauer
@@ -24,14 +24,14 @@ function init_nimbus_gateway_class()
   {
     public function __construct()
     {
-      $this->id = "nimbusgatway";
+      $this->id = "nimbusgateway";
       $this->method_title = "Nimbus Gateway";
-      $this->icon = null;
+      $this->icon = "http://staging.nimbusvapour.com.au/assets/visamaster.png";
       $this->has_fields = true;
       $this->init_form_fields();
       $this->init_settings();
       $this->title = "Card Payment";
-      $this->description = "Pay using credit/debit card";
+      $this->description = "Pay using VISA or Mastercard";
       $this->public_key = $this->get_option("public_key");
       $this->private_key = $this->get_option("private_key");
 
@@ -54,7 +54,7 @@ function init_nimbus_gateway_class()
         "public_key" => [
           "title" => "Public Key",
           "type" => "text",
-          "description" => "Please enter your public key WORKS", //delete this
+          "description" => "Please enter your public key",
           "default" => "",
         ],
         "private_key" => [
@@ -74,11 +74,11 @@ function init_nimbus_gateway_class()
         echo wpautop(wp_kses_post($this->description));
       }
       ?>
+      <div class="form-row form-row-wide">
 
       <fieldset id='wc-<?php echo esc_attr(
         $this->id
       ); ?>cc-form' class="wc-credit-card-form wc-payment-form" style="background:transparent;">
-        <div class="form-row form-row-wide">
           <label for="nimbus_name">Cardholder Name <span class="required">*</span></label>
           <input type="text" id="nimbus_name" name="cardholder_name" autocomplete="off" maxlength="40" required>
         </div>
@@ -90,15 +90,30 @@ function init_nimbus_gateway_class()
           <label for="nimbus_exp_month">Expiry Month <span class="required">*</span></label>
           <select name="exp_month" id="nimbus_exp_month">
             <?php for ($i = 1; $i < 13; $i++) {
-              echo '<option value="' . $i . '">' . $i . "</option>";
+              if ($i === 1) {
+                echo '<option value="0' .
+                  $i .
+                  '" selected>0' .
+                  $i .
+                  "</option>";
+              } elseif ($i > 1 && $i < 10) {
+                echo '<option value="0' . $i . '">0' . $i . "</option>";
+              } else {
+                echo '<option value="' . $i . '">' . $i . "</option>";
+              }
             } ?>
           </select>
         </div>
+        <!-- Make the year dynamic -->
         <div class="form-row form-row-last">
           <label for="nimbus_exp_year">Expiry Year <span class="required">*</span></label>
           <select name="exp_year" id="nimbus_exp_year">
             <?php for ($i = 22; $i < 43; $i++) {
-              echo '<option value="' . $i . '">' . $i . "</option>";
+              if ($i === 23) {
+                echo '<option value="' . $i . '" selected>' . $i . "</option>";
+              } else {
+                echo '<option value="' . $i . '">' . $i . "</option>";
+              }
             } ?>
           </select>
         </div>
@@ -135,7 +150,6 @@ function init_nimbus_gateway_class()
       $order = new WC_Order($order_id);
 
       // Create order
-
       $createOrderData = [
         "client" => [
           "email" => $order->get_billing_email(),
@@ -143,7 +157,7 @@ function init_nimbus_gateway_class()
         "products" => [
           [
             "price" => $order->calculate_totals(),
-            "title" => "Order",
+            "title" => "Order: " . $order_id,
           ],
         ],
       ];
@@ -176,10 +190,7 @@ function init_nimbus_gateway_class()
       $direct_post = $createOrderRes["direct_post"];
       $novatti_id = $createOrderRes["id"];
 
-      debugConsole($novatti_id);
-
       // Create form and pay
-
       $curl = curl_init();
 
       curl_setopt_array($curl, [
@@ -205,7 +216,6 @@ function init_nimbus_gateway_class()
       curl_close($curl);
 
       // Check if paid
-
       $curl = curl_init();
 
       curl_setopt_array($curl, [
@@ -229,7 +239,6 @@ function init_nimbus_gateway_class()
 
       if ($statusRes["status"] === "paid") {
         $order->payment_complete();
-
         return [
           "result" => "success",
           "redirect" => $this->get_return_url($order),
