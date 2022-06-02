@@ -163,45 +163,74 @@ function init_nimbus_gateway_class()
     {
       global $woocommerce;
 
-      $order = wc_get_order($order_id);
+      $order = new WC_Order($order_id);
 
-      debugConsole($order->get_billing_email());
+      // Create order
 
-      // $curl = curl_init();
+      $createOrderData = [
+        "client" => [
+          "email" => $order->get_billing_email(),
+        ],
+        "products" => [
+          [
+            "price" => $order->calculate_totals(),
+            "title" => "Order",
+          ],
+        ],
+      ];
 
-      // curl_setopt_array($curl, [
-      //   CURLOPT_URL => "https://gate.novattipayments.com/api/v0.6/orders/",
-      //   CURLOPT_RETURNTRANSFER => true,
-      //   CURLOPT_ENCODING => "",
-      //   CURLOPT_MAXREDIRS => 10,
-      //   CURLOPT_TIMEOUT => 0,
-      //   CURLOPT_FOLLOWLOCATION => true,
-      //   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-      //   CURLOPT_CUSTOMREQUEST => "POST",
-      //   CURLOPT_POSTFIELDS => '{
-      //     "client": {
-      //         "email": "jack@nimbusvapour.com.au"
-      //     },
-      //     "products": [
-      //         {
-      //             "price": 10,
-      //             "title": "products"
-      //         }
-      //     ]
-      // }',
-      //   CURLOPT_HTTPHEADER => [
-      //     "Authorization: Bearer f540d110bef2cba23bb83ac40259c9e9a7d7f8b93bc5f04fdf1a36b855c1480c",
-      //     "Content-Type: application/json",
-      //   ],
-      // ]);
+      $createOrderAuth = "Bearer " . $this->private_key;
 
-      // $response = curl_exec($curl);
+      $curl = curl_init();
 
-      // curl_close($curl);
+      curl_setopt_array($curl, [
+        CURLOPT_URL => "https://gate.novattipayments.com/api/v0.6/orders/",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => json_encode($createOrderData),
+        CURLOPT_HTTPHEADER => [
+          "Authorization: " . $createOrderAuth,
+          "Content-Type: application/json",
+        ],
+      ]);
 
-      // $jsRes = json_decode($response, true);
+      $response = curl_exec($curl);
 
-      // debugConsole($jsRes["direct_post"]);
+      curl_close($curl);
+
+      $createOrderRes = json_decode($response, true);
+      $direct_post = $createOrderRes["direct_post"];
+
+      // Create form and pay
+
+      $curl = curl_init();
+
+      curl_setopt_array($curl, [
+        CURLOPT_URL => $direct_post,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => [
+          "cardholder_name" => "J T",
+          "number" => "4111111111111111",
+          "exp_month" => "01",
+          "exp_year" => "25",
+          "csc" => "010",
+        ],
+      ]);
+
+      $response = curl_exec($curl);
+
+      curl_close($curl);
 
       // $order->payment_complete();
       // $order->reduce_order_stock();
