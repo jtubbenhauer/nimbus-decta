@@ -12,12 +12,6 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 add_action("plugins_loaded", "init_nimbus_gateway_class");
 
-function debugConsole($msg)
-{
-  $msg = str_replace('"', "''", $msg); # weak attempt to make sure there's not JS breakage
-  echo "<script>console.debug( \"PHP DEBUG: $msg\" );</script>";
-}
-
 function init_nimbus_gateway_class()
 {
   class WC_Nimbus_Gateway extends WC_Payment_Gateway
@@ -26,7 +20,7 @@ function init_nimbus_gateway_class()
     {
       $this->id = "nimbusgateway";
       $this->method_title = "Nimbus Gateway";
-      $this->icon = "http://staging.nimbusvapour.com.au/assets/visamaster.png";
+      $this->icon = "https://www.nimbusvapour.com.au/assets/visamaster.png";
       $this->has_fields = true;
       $this->init_form_fields();
       $this->init_settings();
@@ -39,18 +33,6 @@ function init_nimbus_gateway_class()
         $this,
         "process_admin_options",
       ]);
-
-      // function add_validation_script()
-      // {
-      //   wp_register_script(
-      //     "validation-script",
-      //     plugins_url("validation.js", __FILE__),
-      //     ["jquery"]
-      //   );
-      //   wp_enqueue_script("validation-script");
-      // }
-
-      // add_action("wp_enqueue_scripts", "add_validation_script");
     }
 
     public function log($message)
@@ -119,14 +101,9 @@ function init_nimbus_gateway_class()
         <div class="form-row form-row-first">
           <label for="nimbus_exp_month">Expiry Month <span class="required">*</span></label>
           <select name="exp_month" id="nimbus_exp_month">
+            <option value='' selected>--</option>
             <?php for ($i = 1; $i < 13; $i++) {
-              if ($i === 1) {
-                echo '<option value="0' .
-                  $i .
-                  '" selected>0' .
-                  $i .
-                  "</option>";
-              } elseif ($i > 1 && $i < 10) {
+              if ($i > 0 && $i < 10) {
                 echo '<option value="0' . $i . '">0' . $i . "</option>";
               } else {
                 echo '<option value="' . $i . '">' . $i . "</option>";
@@ -134,16 +111,12 @@ function init_nimbus_gateway_class()
             } ?>
           </select>
         </div>
-        <!-- Make the year dynamic -->
         <div class="form-row form-row-last">
           <label for="nimbus_exp_year">Expiry Year <span class="required">*</span></label>
           <select name="exp_year" id="nimbus_exp_year">
+            <option value=''>--</option>
             <?php for ($i = $year; $i < $year + 20; $i++) {
-              if ($i === $year + 1) {
-                echo '<option value="' . $i . '" selected>' . $i . "</option>";
-              } else {
-                echo '<option value="' . $i . '">' . $i . "</option>";
-              }
+              echo '<option value="' . $i . '">' . $i . "</option>";
             } ?>
           </select>
         </div>
@@ -163,18 +136,28 @@ function init_nimbus_gateway_class()
       global $woocommerce;
 
       if (empty($_POST["cardholder_name"])) {
-        wc_add_notice("<strong>Cardholder name is required.</strong>", "error");
-        $this->log("Validation Error: Empty cardholder name");
+        $this->log("Validation error: Empty cardholder name");
+        wc_add_notice("Cardholder name is required.", "error");
       }
 
       if (empty($_POST["number"])) {
-        wc_add_notice("<strong>Card number is required.</strong>", "error");
-        $this->log("Validation Error: Empty card number");
+        $this->log("Validation error: Empty card number");
+        wc_add_notice("Card number is required.", "error");
+      }
+
+      if (empty($_POST["exp_month"])) {
+        $this->log("Validation error: Empty expiry month");
+        wc_add_notice("Expiry month is required.", "error");
+      }
+
+      if (empty($_POST["exp_year"])) {
+        $this->log("Validation error: Empty expiry year");
+        wc_add_notice("Expiry year is required.", "error");
       }
 
       if (empty($_POST["csc"])) {
-        wc_add_notice("<strong>CVV is required.</strong>", "error");
-        $this->log("Validation Error: Empty CVV");
+        $this->log("Validation error: Empty CVV");
+        wc_add_notice("CVV number is required.", "error");
       }
     }
 
@@ -184,7 +167,7 @@ function init_nimbus_gateway_class()
 
       $order = new WC_Order($order_id);
 
-      // Create order
+      // ------------------------- Create order
       $createOrderData = [
         "client" => [
           "email" => $order->get_billing_email(),
@@ -197,7 +180,7 @@ function init_nimbus_gateway_class()
         ],
       ];
       $this->log("-------------------------------");
-      $this->log("Creating order: " . $order_id . print_r($createOrderData));
+      $this->log("Creating order: " . $order_id . print_r($createOrderData)); //Why doesnt this work?
 
       $createOrderAuth = "Bearer " . $this->private_key;
 
@@ -229,7 +212,7 @@ function init_nimbus_gateway_class()
       $direct_post = $createOrderRes["direct_post"];
       $novatti_id = $createOrderRes["id"];
 
-      // Create form and pay
+      // ------------------ Create form and pay
       $curl = curl_init();
 
       curl_setopt_array($curl, [
@@ -256,7 +239,7 @@ function init_nimbus_gateway_class()
 
       curl_close($curl);
 
-      // Check if paid
+      // ---------------  Check if paid
       $curl = curl_init();
 
       curl_setopt_array($curl, [
