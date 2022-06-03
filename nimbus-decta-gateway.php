@@ -39,12 +39,34 @@ function init_nimbus_gateway_class()
         $this,
         "process_admin_options",
       ]);
+
+      // function add_validation_script()
+      // {
+      //   wp_register_script(
+      //     "validation-script",
+      //     plugins_url("validation.js", __FILE__),
+      //     ["jquery"]
+      //   );
+      //   wp_enqueue_script("validation-script");
+      // }
+
+      // add_action("wp_enqueue_scripts", "add_validation_script");
     }
 
     public function log($message)
     {
       $logger = new WC_Logger();
       $logger->add("Nimbus Gateway: ", $message);
+    }
+
+    public function checkCurlError($ch, $message)
+    {
+      if (curl_errno($ch)) {
+        $error_msg = curl_error($ch);
+      }
+      if (isset($error_msg)) {
+        $this->log($message);
+      }
     }
 
     public function init_form_fields()
@@ -174,6 +196,8 @@ function init_nimbus_gateway_class()
           ],
         ],
       ];
+      $this->log("-------------------------------");
+      $this->log("Creating order: " . $order_id . print_r($createOrderData));
 
       $createOrderAuth = "Bearer " . $this->private_key;
 
@@ -196,6 +220,8 @@ function init_nimbus_gateway_class()
       ]);
 
       $response = curl_exec($curl);
+      $this->log("Creating order");
+      $this->checkCurlError($curl, "Error creating order");
 
       curl_close($curl);
 
@@ -225,6 +251,8 @@ function init_nimbus_gateway_class()
       ]);
 
       $response = curl_exec($curl);
+      $this->log("Creating and sending form");
+      $this->checkCurlError($curl, "Error sending form");
 
       curl_close($curl);
 
@@ -245,6 +273,8 @@ function init_nimbus_gateway_class()
       ]);
 
       $response = curl_exec($curl);
+      $this->log("Checking payment status");
+      $this->checkCurlError($curl, "Error checking payment status");
 
       curl_close($curl);
 
@@ -252,17 +282,21 @@ function init_nimbus_gateway_class()
 
       if ($statusRes["status"] === "paid") {
         $order->payment_complete();
+        $this->log("Payment successful");
         return [
           "result" => "success",
           "redirect" => $this->get_return_url($order),
         ];
       } else {
         $error = $statusRes["transaction_details"]["errors"][0]["description"];
+        $this->log("Payment failed: " . $error);
 
         if ($error === "Decline, refer to card issuer") {
           $error = "Incorrect expiry or CVV number. Please try again.";
         } elseif ($error === "Decline reason message: format error") {
           $error = "Incorrect card number. Please try again.";
+        } elseif ($error === "Decline, not sufficient funds") {
+          $error = "Card declined, insufficient funds.";
         }
 
         wc_add_notice(__("Payment error: ", "woothemes") . $error, "error");
