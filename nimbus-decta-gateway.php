@@ -135,14 +135,36 @@ function init_nimbus_gateway_class()
     {
       global $woocommerce;
 
+      $card_num = strval(str_replace(" ", "", $_POST["number"]));
+
+      if (empty($card_num)) {
+        $this->log("Validation error: Empty card number");
+        wc_add_notice("Card number is required.", "error");
+      }
+
+      if (strlen($card_num) != 13 && strlen($card_num) != 16) {
+        $this->log("Validation error: Invalid card number length");
+        wc_add_notice(
+          "Incorrect card number length. Please try again.",
+          "error"
+        );
+      }
+
+      if (
+        substr($card_num, 0, 1) != "2" &&
+        substr($card_num, 0, 1) != "4" &&
+        substr($card_num, 0, 1) != "5"
+      ) {
+        $this->log("Validation error: Incorrect card type");
+        wc_add_notice(
+          "Invalid card type. Please enter a valid VISA or Mastercard number.",
+          "error"
+        );
+      }
+
       if (empty($_POST["cardholder_name"])) {
         $this->log("Validation error: Empty cardholder name");
         wc_add_notice("Cardholder name is required.", "error");
-      }
-
-      if (empty($_POST["number"])) {
-        $this->log("Validation error: Empty card number");
-        wc_add_notice("Card number is required.", "error");
       }
 
       if (empty($_POST["exp_month"])) {
